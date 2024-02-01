@@ -1,6 +1,7 @@
 #!/usr/bin/python
-from datetime import date
 from bootload import bootload
+import pathlib
+import datetime
 import os
 import sys
 import serial
@@ -12,7 +13,10 @@ import csv
 def main():
     uart_port = "/dev/ttyUSB0"
 
-    results_path = 'results/' + date.today().isoformat()
+    # Make results directory if it doesn't exist
+    pathlib.Path('results/').mkdir(exist_ok=True)
+    # Use timestamp for results file
+    results_path = 'results/' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     results_writer = csv.writer(open(results_path, 'w', newline=''))
 
     successes = 0
