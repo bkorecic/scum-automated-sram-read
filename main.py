@@ -14,7 +14,6 @@ NRF_PORT = "/dev/ttyACM3"
 BINARY_IMAGE = "run.bin"
 
 def main():
-    uart_port = "/dev/ttyUSB0"
 
     # Make results directory if it doesn't exist
     pathlib.Path('results/').mkdir(exist_ok=True)
@@ -50,7 +49,7 @@ def main():
         # open the serial port with SCuM
         uart_ser = serial.Serial(
             timeout=60,
-            port=uart_port,
+            port=SERIAL_PORT,
             baudrate=19200,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
