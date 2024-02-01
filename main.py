@@ -11,10 +11,10 @@ import csv
 
 SERIAL_PORT = "/dev/ttyUSB0"
 NRF_PORT = "/dev/ttyACM3"
-BINARY_IMAGE = "run.bin"
+BINARY_IMAGE = "run.bin"        # Compiled program for SCuM to bootload
+NUMBER_OF_RUNS = 5000           # Number of readouts
 
 def main():
-
     # Make results directory if it doesn't exist
     pathlib.Path('results/').mkdir(exist_ok=True)
     # Use timestamp for results file
@@ -24,7 +24,7 @@ def main():
     successes = 0
     failures = 0
     retries = 0
-    for attempt in range(5000):
+    for attempt in range(NUMBER_OF_RUNS):
         # unplug the usb cables (SRAM is totally turned off)
         subprocess.run(["/usr/bin/ykushcmd", "-d", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
