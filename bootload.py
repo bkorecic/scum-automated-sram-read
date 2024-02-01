@@ -50,3 +50,7 @@ def bootload(nRF_port, binary_image):
 
     # Display 3WB confirmation message from nRF
     #print(nRF_ser.read())
+
+
+if __name__ == "__main__":
+    bootload('/dev/ttyACM3', 'run.bin')
