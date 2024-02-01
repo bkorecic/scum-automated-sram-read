@@ -21,7 +21,7 @@ def main():
     successes = 0
     failures = 0
     retries = 0
-    for i in range(1000):
+    while True:
         # unplug the usb cables (SRAM is totally turned off)
         subprocess.run(["/usr/bin/ykushcmd", "-d", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
@@ -36,10 +36,8 @@ def main():
         # flash the firmware into the SCuM chip through the nRF
         # the nRF will send back a confirmation when done
         try:
-            subprocess.run(
-                ["python3", "/home/bkorecic/aio/SCuM-programmer/test_bootload.py"],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-        except subprocess.CalledProcessError:
+            bootload()
+        except:
             retries += 1
             continue
 
