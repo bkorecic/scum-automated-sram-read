@@ -19,7 +19,7 @@ def main():
     # Make results directory if it doesn't exist
     pathlib.Path('results/').mkdir(exist_ok=True)
     # Use timestamp for results file
-    results_path = 'results/' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    results_path = 'results/' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '.csv'
     results_writer = csv.writer(open(results_path, 'w', newline=''))
 
     successes = 0
