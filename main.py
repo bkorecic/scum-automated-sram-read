@@ -6,14 +6,11 @@ import sys
 import serial
 import time
 import subprocess
-import re
 import csv
 
 
 def main():
     uart_port = "/dev/ttyUSB0"
-
-    correct_key = "683d02f7e2fa18fd"
 
     results_path = 'results/' + date.today().isoformat()
     results_writer = csv.writer(open(results_path, 'w', newline=''))
@@ -21,7 +18,7 @@ def main():
     successes = 0
     failures = 0
     retries = 0
-    while True:
+    for attempt in range(5000):
         # unplug the usb cables (SRAM is totally turned off)
         subprocess.run(["/usr/bin/ykushcmd", "-d", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
@@ -41,8 +38,11 @@ def main():
             retries += 1
             continue
 
+        start_timestamp = time.time()
+
         # open the serial port with SCuM
         uart_ser = serial.Serial(
+            timeout=60,
             port=uart_port,
             baudrate=19200,
             parity=serial.PARITY_NONE,
@@ -52,24 +52,22 @@ def main():
         if uart_ser.is_open != 1:
             uart_ser.open()
 
+
+        failures += 1
+
         # read the output of the firmware running on SCuM
         # print('Reading the serial port.')
         while uart_ser.is_open:
-            data = uart_ser.readline()
-            match = re.search(b'Key: "(.+?)"', data)
-            if match:
-                key = match.group(1).decode('utf-8')
-                if key == correct_key:
-                    successes += 1
-                else:
-                    failures += 1
-                print(
-                    f"Successes: {successes}, failures: {failures}, retries: {retries}")
+            data = str(uart_ser.readline())
+            if data.startswith('SRAM DATA='):
+                results_writer.writerow([start_timestamp, time.time(), data.lstrip('SRAM DATA=')])
+                successes += 1
+                failures -= 1
             # when finishing this round close the serial port with SCuM to allow
             # the nRF to use it later
-            if data == b'TEST DONE\r\n':
-                # print("Closing the serial port.")
+            elif data.startswith('TEST DONE'):
                 uart_ser.close()
+        print(f'Total attempts: {attempt+1}\tSucceeded: {successes}\tFailed: {failures}\tRetried: {retries}')
 
 
 if __name__ == '__main__':
