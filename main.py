@@ -13,6 +13,7 @@ SERIAL_PORT = "/dev/ttyUSB0"
 NRF_PORT = "/dev/ttyACM3"
 BINARY_IMAGE = "run.bin"        # Compiled program for SCuM to bootload
 NUMBER_OF_RUNS = 5000           # Number of readouts
+LOOK_FOR_STR = "SRAM_DATA="     # Will search for a line starting with LOOK_FOR_STR (and strip it)
 
 def main():
     # Make results directory if it doesn't exist
@@ -64,8 +65,8 @@ def main():
         # print('Reading the serial port.')
         while uart_ser.is_open:
             data = str(uart_ser.readline())
-            if data.startswith('SRAM DATA='):
-                results_writer.writerow([start_timestamp, time.time(), data.lstrip('SRAM DATA=')])
+            if data.startswith(LOOK_FOR_STR):
+                results_writer.writerow([start_timestamp, time.time(), data.lstrip(LOOK_FOR_STR)])
                 successes += 1
                 failures -= 1
             # when finishing this round close the serial port with SCuM to allow
