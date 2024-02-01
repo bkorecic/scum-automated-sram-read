@@ -9,6 +9,9 @@ import time
 import subprocess
 import csv
 
+SERIAL_PORT = "/dev/ttyUSB0"
+NRF_PORT = "/dev/ttyACM3"
+BINARY_IMAGE = "run.bin"
 
 def main():
     uart_port = "/dev/ttyUSB0"
@@ -37,7 +40,7 @@ def main():
         # flash the firmware into the SCuM chip through the nRF
         # the nRF will send back a confirmation when done
         try:
-            bootload()
+            bootload(NRF_PORT, BINARY_IMAGE)
         except:
             retries += 1
             continue
@@ -55,7 +58,6 @@ def main():
 
         if uart_ser.is_open != 1:
             uart_ser.open()
-
 
         failures += 1
 

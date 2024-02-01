@@ -2,14 +2,10 @@ from serial_interface import SerialInterface
 
 import random
 
-def bootload():
+def bootload(nRF_port, binary_image):
     # Serial connections
     nRF_ser = None
-    #uart_ser = None
 
-    nRF_port = "/dev/ttyACM3"
-    #binary_image = "/home/bkorecic/aio/scum-test-code/scm_v3c/applications/extracting_secret_key/ecc/repetition_code/read_key/Objects/read_key.bin"
-    binary_image = "/home/bkorecic/aio/scum-test-code/scm_v3c/applications/extracting_secret_key/ecc/bch/helper_data_gen/Objects/helper_data_gen.bin"
     #boot_mode = '3wb'
     pad_random_payload = False
 
