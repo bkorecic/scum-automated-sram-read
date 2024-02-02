@@ -1,4 +1,4 @@
-NUMBER_OF_CYCLES = 5000               # Number of readouts (power cycles)
+NUMBER_OF_CYCLES = 1000               # Number of readouts (power cycles)
 YKUSHCMD_PATH = "/usr/bin/ykushcmd" # Path to ykushcmd executable
 SERIAL_PORT = "/dev/ttyUSB0"        # Device name of serial port
 NRF_PORT = "/dev/ttyACM3"           # Device name of the nRF
