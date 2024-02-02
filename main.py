@@ -64,7 +64,7 @@ def main():
         while uart_ser.is_open:
             data = uart_ser.readline()
             if data.startswith(LOOK_FOR_STR):
-                results_writer.writerow([start_timestamp, time.time(), data.lstrip(LOOK_FOR_STR)])
+                results_writer.writerow([start_timestamp, time.time(), data.lstrip(LOOK_FOR_STR).decode('utf-8')])
                 successes += 1
                 failures -= 1
             # when finishing this round close the serial port with SCuM to allow
