@@ -2,11 +2,12 @@ from serial_interface import SerialInterface
 
 import random
 
+
 def bootload(nRF_port, binary_image):
     # Serial connections
     nRF_ser = None
 
-    #boot_mode = '3wb'
+    # boot_mode = '3wb'
     pad_random_payload = False
 
     # Open COM port to nRF
@@ -34,7 +35,6 @@ def bootload(nRF_port, binary_image):
         for _ in range(pad_length):
             bindata.append(0)
 
-
     # Transfer payload to nRF
     # nRF_ser.write(b'transfersram\n')
     # print(nRF_ser.read_until())
@@ -49,7 +49,7 @@ def bootload(nRF_port, binary_image):
     # nRF_ser.write(b'boot3wb\n')
 
     # Display 3WB confirmation message from nRF
-    #print(nRF_ser.read())
+    # print(nRF_ser.read())
 
 
 if __name__ == "__main__":

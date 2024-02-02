@@ -78,4 +78,3 @@ class SerialInterface:
         if self.verbose:
             logging.info("Read %d bytes from the serial port.", len(read_data))
         return read_data
-
