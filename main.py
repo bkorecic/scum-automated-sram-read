@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from bootload import bootload
-from config import config
+from config import Config
 import pathlib
 import datetime
 import os
@@ -23,10 +23,10 @@ def main():
     successes = 0
     failures = 0
     retries = 0
-    for attempt in range(config.NUMBER_OF_CYCLES):
+    for attempt in range(Config.NUMBER_OF_CYCLES):
         print('Starting power cycle. Switching off the USB hub.')
         # unplug the usb cables (SRAM is totally turned off)
-        subprocess.run([config.YKUSHCMD_PATH, "-d", "a"], stdin=None,
+        subprocess.run([Config.YKUSHCMD_PATH, "-d", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
 
         # wait for the SRAM cells to get their default values
@@ -34,18 +34,18 @@ def main():
 
         print('Switching on the USB hub.')
         # plug the usb cables
-        subprocess.run([config.YKUSHCMD_PATH, "-u", "a"], stdin=None,
+        subprocess.run([Config.YKUSHCMD_PATH, "-u", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
 
         print('Waiting for nRF to start.')
         # wait for the nRF to bootload
-        time.sleep(5)
+        time.sleep(10)
 
         print('Flashing the SCuM firmware.')
         # flash the firmware into the SCuM chip through the nRF
         # the nRF will send back a confirmation when done
         try:
-            bootload(config.NRF_PORT, config.BINARY_IMAGE)
+            bootload(Config.NRF_PORT, Config.BINARY_IMAGE)
         except Exception as e:
             print(e)
             retries += 1
@@ -57,7 +57,7 @@ def main():
         # open the serial port with SCuM
         uart_ser = serial.Serial(
             timeout=70,
-            port=config.SERIAL_PORT,
+            port=Config.SERIAL_PORT,
             baudrate=19200,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -72,11 +72,11 @@ def main():
         # print('Reading the serial port.')
         while uart_ser.is_open:
             data = uart_ser.readline()
-            if data.startswith(config.LOOK_FOR_STR):
+            if data.startswith(Config.LOOK_FOR_STR):
                 results_writer.writerow(
                     [start_timestamp,
                      time.time(),
-                     data.lstrip(config.LOOK_FOR_STR).decode('utf-8')])
+                     data.lstrip(Config.LOOK_FOR_STR).decode('utf-8')])
                 successes += 1
                 failures -= 1
             # when finishing this round close the serial port
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     if os.name == 'posix' and os.geteuid() != 0:
         print('Must run as root')
         sys.exit(1)
-    if not pathlib.Path(config.YKUSHCMD_PATH).is_file():
+    if not pathlib.Path(Config.YKUSHCMD_PATH).is_file():
         print('Executable ykushcmd not found,'
               ' check config.py or file permissions')
         sys.exit(1)
