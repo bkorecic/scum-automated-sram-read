@@ -76,7 +76,10 @@ def main():
                 results_file.write(','.join(
                     [str(start_timestamp),
                      str(time.time()),
-                     data.lstrip(Config.LOOK_FOR_STR).decode('utf-8')]) + '\n')
+                     data.lstrip(Config.LOOK_FOR_STR)  # Strip marker
+                         .decode('utf-8')  # Convert to string
+                         .rstrip()])  # Strip newline characters
+                    + '\n')
                 successes += 1
                 failures -= 1
             # when finishing this round close the serial port
