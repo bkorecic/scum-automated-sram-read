@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from bootload import bootload
+from config import *
 import pathlib
 import datetime
 import os
@@ -9,11 +10,6 @@ import time
 import subprocess
 import csv
 
-SERIAL_PORT = "/dev/ttyUSB0"
-NRF_PORT = "/dev/ttyACM3"
-BINARY_IMAGE = "sram_read.bin"        # Compiled program for SCuM to bootload
-NUMBER_OF_RUNS = 5000           # Number of readouts
-LOOK_FOR_STR = b"SRAM_DATA="    # Will search for a line starting with LOOK_FOR_STR (and strip it)
 
 def main():
     # Make results directory if it doesn't exist
@@ -26,14 +22,14 @@ def main():
     successes = 0
     failures = 0
     retries = 0
-    for attempt in range(NUMBER_OF_RUNS):
+    for attempt in range(NUMBER_OF_CYCLES):
         # unplug the usb cables (SRAM is totally turned off)
-        subprocess.run(["/usr/bin/ykushcmd", "-d", "a"], stdin=None,
+        subprocess.run([YKUSHCMD_PATH, "-d", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
         # wait for the SRAM cells to get their default values
         time.sleep(5)
         # plug the usb cables
-        subprocess.run(["/usr/bin/ykushcmd", "-u", "a"], stdin=None,
+        subprocess.run([YKUSHCMD_PATH, "-u", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
         # wait for the nRF to bootload
         time.sleep(10)
@@ -80,5 +76,8 @@ def main():
 if __name__ == '__main__':
     if os.name == 'posix' and os.geteuid() != 0:
         print('Must run as root')
+        sys.exit(1)
+    if not pathlib.Path(YKUSHCMD_PATH).is_file():
+        print('Executable ykushcmd not found, check config.py or file permissions')
         sys.exit(1)
     main()
