@@ -17,9 +17,10 @@ LOOK_FOR_STR = b"SRAM_DATA="    # Will search for a line starting with LOOK_FOR_
 
 def main():
     # Make results directory if it doesn't exist
-    pathlib.Path('results/').mkdir(exist_ok=True)
+    base_dir = pathlib.Path(__file__).parent
+    pathlib.Path(base_dir / 'results').mkdir(exist_ok=True)
     # Use timestamp for results file
-    results_path = 'results/' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '.csv'
+    results_path = base_dir / 'results' / (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '.csv')
     results_writer = csv.writer(open(results_path, 'w', newline=''))
 
     successes = 0
@@ -77,7 +78,7 @@ def main():
 
 
 if __name__ == '__main__':
-    if os.geteuid() != 0:
+    if os.name == 'posix' and os.geteuid() != 0:
         print('Must run as root')
         sys.exit(1)
     main()
