@@ -24,17 +24,24 @@ def main():
     failures = 0
     retries = 0
     for attempt in range(config.NUMBER_OF_CYCLES):
+        print('Starting power cycle. Switching off the USB hub.')
         # unplug the usb cables (SRAM is totally turned off)
         subprocess.run([config.YKUSHCMD_PATH, "-d", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
+
         # wait for the SRAM cells to get their default values
         time.sleep(5)
+
+        print('Switching on the USB hub.')
         # plug the usb cables
         subprocess.run([config.YKUSHCMD_PATH, "-u", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
-        # wait for the nRF to bootload
-        time.sleep(10)
 
+        print('Waiting for nRF to start.')
+        # wait for the nRF to bootload
+        time.sleep(5)
+
+        print('Flashing the SCuM firmware.')
         # flash the firmware into the SCuM chip through the nRF
         # the nRF will send back a confirmation when done
         try:
@@ -46,6 +53,7 @@ def main():
 
         start_timestamp = time.time()
 
+        print('Opening the serial port and waiting for the SRAM data.')
         # open the serial port with SCuM
         uart_ser = serial.Serial(
             timeout=70,

@@ -35,21 +35,13 @@ def bootload(nRF_port, binary_image):
         for _ in range(pad_length):
             bindata.append(0)
 
-    # Transfer payload to nRF
-    # nRF_ser.write(b'transfersram\n')
-    # print(nRF_ser.read_until())
     # Send the binary data over uart
     nRF_ser.write(bindata)
     # and wait for response that writing is complete
-    # print(nRF_ser.read())
     nRF_ser.read()
     nRF_ser.read()
 
-    # Execute 3-wire bus bootloader on nRF
-    # nRF_ser.write(b'boot3wb\n')
-
-    # Display 3WB confirmation message from nRF
-    # print(nRF_ser.read())
+    print('Bootload complete')
 
 
 if __name__ == "__main__":
