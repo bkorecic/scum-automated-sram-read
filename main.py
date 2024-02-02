@@ -8,7 +8,6 @@ import sys
 import serial
 import time
 import subprocess
-import csv
 
 
 def main():
@@ -18,7 +17,7 @@ def main():
     # Use timestamp for results file
     results_path = base_dir / 'results' / \
         (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '.csv')
-    results_writer = csv.writer(open(results_path, 'w', newline=''))
+    results_file = open(results_path, 'w')
 
     successes = 0
     failures = 0
@@ -74,10 +73,10 @@ def main():
         while uart_ser.is_open:
             data = uart_ser.readline()
             if data.startswith(Config.LOOK_FOR_STR):
-                results_writer.writerow(
-                    [start_timestamp,
-                     time.time(),
-                     data.lstrip(Config.LOOK_FOR_STR).decode('utf-8')])
+                results_file.write(','.join(
+                    [str(start_timestamp),
+                     str(time.time()),
+                     data.lstrip(Config.LOOK_FOR_STR).decode('utf-8')]) + '\n')
                 successes += 1
                 failures -= 1
             # when finishing this round close the serial port
