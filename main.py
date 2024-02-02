@@ -11,7 +11,7 @@ import csv
 
 SERIAL_PORT = "/dev/ttyUSB0"
 NRF_PORT = "/dev/ttyACM3"
-BINARY_IMAGE = "run.bin"        # Compiled program for SCuM to bootload
+BINARY_IMAGE = "sram_read.bin"        # Compiled program for SCuM to bootload
 NUMBER_OF_RUNS = 5000           # Number of readouts
 LOOK_FOR_STR = b"SRAM_DATA="    # Will search for a line starting with LOOK_FOR_STR (and strip it)
 
