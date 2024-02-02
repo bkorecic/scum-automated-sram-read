@@ -38,7 +38,8 @@ def main():
         # the nRF will send back a confirmation when done
         try:
             bootload(NRF_PORT, BINARY_IMAGE)
-        except:
+        except Exception as e:
+            print(e)
             retries += 1
             continue
 
