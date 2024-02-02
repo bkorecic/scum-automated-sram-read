@@ -41,8 +41,6 @@ def bootload(nRF_port, binary_image):
     nRF_ser.read()
     nRF_ser.read()
 
-    print('Bootload complete')
-
 
 if __name__ == "__main__":
     bootload('/dev/ttyACM3', 'run.bin')

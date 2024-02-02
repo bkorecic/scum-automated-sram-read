@@ -24,7 +24,8 @@ def main():
     failures = 0
     retries = 0
     for attempt in range(Config.NUMBER_OF_CYCLES):
-        print('Starting power cycle. Switching off the USB hub.')
+        start_time = time.time()
+        print('Starting power cycle. Switching off the USB hub.', end='')
         # unplug the usb cables (SRAM is totally turned off)
         subprocess.run([Config.YKUSHCMD_PATH, "-d", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
@@ -32,16 +33,16 @@ def main():
         # wait for the SRAM cells to get their default values
         time.sleep(5)
 
-        print('Switching on the USB hub.')
+        print('\33[2K\rSwitching on the USB hub.', end='')
         # plug the usb cables
         subprocess.run([Config.YKUSHCMD_PATH, "-u", "a"], stdin=None,
                        stdout=None, stderr=None, shell=False)
 
-        print('Waiting for nRF to start.')
+        print('\33[2K\rWaiting for nRF to start.', end='')
         # wait for the nRF to bootload
         time.sleep(10)
 
-        print('Flashing the SCuM firmware.')
+        print('\33[2K\rFlashing the SCuM firmware.', end='')
         # flash the firmware into the SCuM chip through the nRF
         # the nRF will send back a confirmation when done
         try:
@@ -53,7 +54,8 @@ def main():
 
         start_timestamp = time.time()
 
-        print('Opening the serial port and waiting for the SRAM data.')
+        print('\33[2K\rOpening the serial port and waiting for the SRAM data.',
+              end='')
         # open the serial port with SCuM
         uart_ser = serial.Serial(
             timeout=70,
@@ -69,7 +71,6 @@ def main():
         failures += 1
 
         # read the output of the firmware running on SCuM
-        # print('Reading the serial port.')
         while uart_ser.is_open:
             data = uart_ser.readline()
             if data.startswith(Config.LOOK_FOR_STR):
@@ -83,10 +84,13 @@ def main():
             # with SCuM to allow the nRF to use it later
             elif data.startswith(b'TEST DONE'):
                 uart_ser.close()
+        time_elapsed = time.time() - start_time
         print(
-            f'Total attempts: {attempt+1}\t'
-            f'Succeeded: {successes}\t'
-            f'Failed: {failures}\tRetried: {retries}')
+            f'\33[2K\rTotal attempts: {attempt+1} | '
+            f'Succeeded: {successes} | '
+            f'Failed: {failures} | '
+            f'Retried: {retries} | '
+            f'Cycle time: {time_elapsed:5.2f}s')
 
 
 if __name__ == '__main__':
