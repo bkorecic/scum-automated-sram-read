@@ -54,7 +54,7 @@ def main():
         try:
             bootload(Config.NRF_PORT, Config.BINARY_IMAGE)
         except Exception as e:
-            err_log_file.write(e)
+            err_log_file.write(str(e))
             err_log_file.write('\n')
             print()  # need to end tests with a newline
             retries += 1
@@ -94,7 +94,7 @@ def main():
                         + '\n')
                     successes += 1
                 except Exception as e:
-                    err_log_file.write(e)
+                    err_log_file.write(str(e))
                     err_log_file.write('\n')
                     failures += 1
                 uart_ser.close()
