@@ -15,12 +15,19 @@ def main():
     base_dir = pathlib.Path(__file__).parent
     pathlib.Path(base_dir / 'results').mkdir(exist_ok=True)
     # Use timestamp for results file
-    results_path = base_dir / 'results' / \
-        (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '.csv')
+    basename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    results_path = base_dir / 'results' / (basename + '.csv')
     results_file = open(results_path, 'w')
+    err_log_path = base_dir / 'results' / (basename + '-errors.txt')
+    err_log_file = open(err_log_path, 'w')
 
+    # Success: the SRAM data was sent and read without problems
     successes = 0
+    # Timeout: for some reason SCuM was not able to print the SRAM data
+    timeouts = 0
+    # Failure: the received SRAM data was corrupted
     failures = 0
+    # Retry: the bootload failed (nRF was not detected or similar problems)
     retries = 0
     for attempt in range(Config.NUMBER_OF_CYCLES):
         start_time = time.time()
@@ -47,7 +54,9 @@ def main():
         try:
             bootload(Config.NRF_PORT, Config.BINARY_IMAGE)
         except Exception as e:
-            print(e)
+            err_log_file.write(e)
+            err_log_file.write('\n')
+            print()  # need to end tests with a newline
             retries += 1
             continue
 
@@ -57,7 +66,7 @@ def main():
               end='')
         # open the serial port with SCuM
         uart_ser = serial.Serial(
-            timeout=70,
+            timeout=Config.SERIAL_TIMEOUT,
             port=Config.SERIAL_PORT,
             baudrate=19200,
             parity=serial.PARITY_NONE,
@@ -67,29 +76,33 @@ def main():
         if uart_ser.is_open != 1:
             uart_ser.open()
 
-        failures += 1
-
         # read the output of the firmware running on SCuM
         while uart_ser.is_open:
             data = uart_ser.readline()
+            if not data.endswith('\n'):
+                # if newline is missing, it returned on timeout
+                timeouts += 1
+                uart_ser.close()
             if data.startswith(Config.LOOK_FOR_STR):
-                results_file.write(','.join(
-                    [str(start_timestamp),
-                     str(time.time()),
-                     data.lstrip(Config.LOOK_FOR_STR)  # Strip marker
-                         .decode('utf-8')  # Convert to string
-                         .rstrip()])  # Strip newline characters
-                    + '\n')
-                successes += 1
-                failures -= 1
-            # when finishing this round close the serial port
-            # with SCuM to allow the nRF to use it later
-            elif data.startswith(b'TEST DONE'):
+                try:
+                    results_file.write(','.join(
+                        [str(start_timestamp),
+                         str(time.time()),
+                         data.lstrip(Config.LOOK_FOR_STR)  # Strip marker
+                             .decode('utf-8')  # Convert to string
+                             .rstrip()])  # Strip newline characters
+                        + '\n')
+                    successes += 1
+                except Exception as e:
+                    err_log_file.write(e)
+                    err_log_file.write('\n')
+                    failures += 1
                 uart_ser.close()
         time_elapsed = time.time() - start_time
         print(
             f'\33[2K\rTotal attempts: {attempt+1} | '
             f'Succeeded: {successes} | '
+            f'Timeouts: {timeouts} | '
             f'Failed: {failures} | '
             f'Retried: {retries} | '
             f'Cycle time: {time_elapsed:5.2f}s')

@@ -6,3 +6,4 @@ class Config:
     # You probably don't need to edit the following lines
     BINARY_IMAGE = "sram_read.bin"  # Compiled program for SCuM to bootload
     LOOK_FOR_STR = b"SRAM_DATA="    # Marker for SRAM data
+    SERIAL_TIMEOUT = 70             # Max. wait time for SCuM printing results
