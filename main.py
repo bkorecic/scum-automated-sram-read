@@ -79,7 +79,7 @@ def main():
         # read the output of the firmware running on SCuM
         while uart_ser.is_open:
             data = uart_ser.readline()
-            if not data.endswith('\n'):
+            if not data.endswith(b'\n'):
                 # if newline is missing, it returned on timeout
                 timeouts += 1
                 uart_ser.close()
