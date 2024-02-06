@@ -8,6 +8,7 @@ import sys
 import serial
 import time
 import subprocess
+import pickle
 
 
 def main():
@@ -16,8 +17,8 @@ def main():
     pathlib.Path(base_dir / 'results').mkdir(exist_ok=True)
     # Use timestamp for results file
     basename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    results_path = base_dir / 'results' / (basename + '.csv')
-    results_file = open(results_path, 'w')
+    results_path = base_dir / 'results' / (basename + '.pickle')
+    results_file = open(results_path, 'wb')
     err_log_path = base_dir / 'results' / (basename + '-errors.txt')
     err_log_file = open(err_log_path, 'w')
 
@@ -62,7 +63,7 @@ def main():
 
         start_timestamp = time.time()
 
-        print('\33[2K\rOpening the serial port and waiting for the SRAM data.',
+        print('\33[2K\rOpening the serial port.',
               end='')
         # open the serial port with SCuM
         uart_ser = serial.Serial(
@@ -76,28 +77,25 @@ def main():
         if uart_ser.is_open != 1:
             uart_ser.open()
 
-        # read the output of the firmware running on SCuM
-        while uart_ser.is_open:
-            data = uart_ser.readline()
-            if not data.endswith(b'\n'):
-                # if newline is missing, it returned on timeout
+        print('\33[2K\rWaiting for SRAM data marker.',
+              end='')
+        uart_ser.read_until(Config.LOOK_FOR_STR)
+        print('\33[2K\rFound SRAM marker. Waiting for data.',
+              end='')
+        try:
+            data = uart_ser.read(Config.DATA_BYTES)
+            if len(data) != Config.DATA_BYTES:
                 timeouts += 1
-                uart_ser.close()
-            if data.startswith(Config.LOOK_FOR_STR):
-                try:
-                    results_file.write(','.join(
-                        [str(start_timestamp),
-                         str(time.time()),
-                         data.lstrip(Config.LOOK_FOR_STR)  # Strip marker
-                             .decode('utf-8')  # Convert to string
-                             .rstrip()])  # Strip newline characters
-                        + '\n')
-                    successes += 1
-                except Exception as e:
-                    err_log_file.write(str(e))
-                    err_log_file.write('\n')
-                    failures += 1
-                uart_ser.close()
+            else:
+                end_timestamp = time.time()
+                pickle.dump([start_timestamp, end_timestamp, data],
+                            results_file)
+                successes += 1
+        except Exception as e:
+            err_log_file.write(str(e))
+            err_log_file.write('\n')
+            failures += 1
+
         time_elapsed = time.time() - start_time
         print(
             f'\33[2K\rTotal attempts: {attempt+1} | '
