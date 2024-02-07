@@ -98,7 +98,7 @@ def main():
 
         time_elapsed = time.time() - start_time
         print(
-            f'\33[2K\rTotal attempts: {attempt+1} | '
+            f'\33[2K\rTotal attempts: {successes+timeouts+failures+retries} | '
             f'Succeeded: {successes} | '
             f'Timeouts: {timeouts} | '
             f'Failed: {failures} | '
