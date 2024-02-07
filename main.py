@@ -30,7 +30,7 @@ def main():
     failures = 0
     # Retry: the bootload failed (nRF was not detected or similar problems)
     retries = 0
-    for attempt in range(Config.NUMBER_OF_CYCLES):
+    while successes < Config.NUMBER_OF_CYCLES:
         start_time = time.time()
         print('Starting power cycle. Switching off the USB hub.', end='')
         # unplug the usb cables (SRAM is totally turned off)
