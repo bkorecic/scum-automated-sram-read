@@ -95,7 +95,8 @@ def main():
             err_log_file.write(str(e))
             err_log_file.write('\n')
             failures += 1
-
+    
+        uart_ser.close()
         time_elapsed = time.time() - start_time
         print(
             f'\33[2K\rTotal attempts: {successes+timeouts+failures+retries} | '
