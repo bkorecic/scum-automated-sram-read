@@ -42,4 +42,4 @@ sudo python3 main.py
 
 ## Output
 
-When running, a `results/` directory will be created in the same directory as the project. The results will be written to a `csv` file whose name will be a timestamp in the format `YYMMDD-HHMMSS.csv`.
+When running, a `results/` directory will be created in the same directory as the project. The results will be written to a `pickle` file whose name will be a timestamp in the format `YYMMDD-HHMMSS.pickle`.
